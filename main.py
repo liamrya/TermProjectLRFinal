@@ -1,4 +1,4 @@
-import characters
+from characters import *
 
 from cmu_112_graphics import *
 
@@ -11,4 +11,4 @@ def keyPressed(app, event):
 def redrawAll(app, canvas):
     pass
 
-runApp(width=400, height=400)
+runApp(width=1000, height=500)
