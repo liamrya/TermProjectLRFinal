@@ -1,10 +1,20 @@
 from characters import *
 from cmu_112_graphics import *
+import random
 
 def appStarted(app):
+    app.timerDelay = 10
     spritestrip = app.loadImage('img/mainsprite.png')
+    app.sprites = spritestrip
     app.gameOver = False
-
+    #background
+    app.width = 3000
+    app.height = 200
+    app.tileSize = 17
+    app.terrain = []
+    app.sky = app.sprites.crop((800,520,840,560))
+    brickLoad = app.sprites.crop((110,25,150,65))
+    app.brick = app.scaleImage(brickLoad, .5)
     #MARIO APP ITEMS
     mario_load = spritestrip.crop((10, 895, 60, 940))
     app.standingMario = app.scaleImage(mario_load, .66)
@@ -37,6 +47,7 @@ def appStarted(app):
     app.gStart = 300
     for i in range(app.goombaAutoCount):
         app.goombaLocations.append(app.gStart*(i+1))
+    loadTerrain(app)
 
 def keyPressed(app, event):
     if (event.key == 'Left'):
@@ -99,12 +110,29 @@ def timerFired(app):
         if locationNow > 186 and locationNow < 214 and (app.currentMario == app.standingMario or 
         app.currentMario == app.runningRight or app.currentMario == app.runningLeft): 
             app.gameOver = True
-        # if locationNow > 186 and locationNow < 214 and app.currentMario == app.jumpingMario:
-        #     app.gStart += 300
-        #     break
-        
+
+#generating terrain
+def loadTerrain(app):
+    for x in range(int((app.height)/app.tileSize)+1):
+        app.terrain.append([])
+        for y in range(int(app.width/app.tileSize)):
+            if x>9:
+                app.terrain[x].append('brick')
+            else:
+                app.terrain[x].append('sky')
+def loadTerrainSolver(app):
+    rows, cols = len(app.terrain), len(app.terrain[0])
+
+def isLegal(app):
+    pass
+
 def drawBackground(app, canvas):
-    canvas.create_image(1670-app.scrollX,200, image=ImageTk.PhotoImage(Image.open('img/background.png')))
+    for i in range(len(app.terrain)):
+        for j in range(len(app.terrain[i])):
+            if app.terrain[i][j] == 'sky':
+                canvas.create_image(10+app.tileSize*j-app.scrollX, 10+app.tileSize*i,image=ImageTk.PhotoImage(app.sky))
+            if app.terrain[i][j] == 'brick':
+                canvas.create_image(10+app.tileSize*j-app.scrollX, 10+app.tileSize*i, image=ImageTk.PhotoImage(app.brick))
 
 def drawMario(app, canvas):
     if app.currentMario == app.standingMario:
