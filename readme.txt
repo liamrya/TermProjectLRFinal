@@ -11,7 +11,7 @@ How to run the project: Simply download and open TermProjectLRFinal and run main
 Libraries to install: None
 
 Commands:
-Arrow keys to move left, right, and up
+Arrow keys and 'a', 'd', 'w' to move left, right, and up respectively
 'r' to restart game
 'p' to switch mario to star mode (given in game by star powerup)
 'o' to switch mario to tall mode (given in game by mushroom powerup)

@@ -417,7 +417,7 @@ def goombaCollision(app):
 
 def keyPressed(app, event):
     if app.win == False:
-        if (event.key == 'Left'):
+        if (event.key == 'Left' or event.key =='a'):
             if app.scrollX > 2:
                 if app.blockL == False:
                     app.scrollX -= 2
@@ -427,7 +427,7 @@ def keyPressed(app, event):
                 if app.isStar == True:
                     app.currentMario = app.starRunningLeft
                 app.isRunning = True
-        if (event.key == 'Right'):
+        if (event.key == 'Right' or event.key == 'd'):
             app.currentMario = app.runningRight
             if app.isTall == True:
                 app.currentMario = app.tallRunningRight
@@ -436,7 +436,7 @@ def keyPressed(app, event):
             app.isRunning = True
             if app.blockR == False:
                 app.scrollX += 2
-        if (event.key == 'Up' and app.isJumping == False and app.isFalling == False):
+        if ((event.key == 'Up' or event.key == 'w') and app.isJumping == False and app.isFalling == False):
             app.isJumping, app.isFalling, app.gravity = True, False, True
     if (event.key == 'p'):
         app.isTall, app.isStar = False, True
@@ -448,9 +448,9 @@ def keyPressed(app, event):
     if (event.key == 'r'):
         runApp(width=600, height=200)
 def keyReleased(app, event):
-    if (event.key == 'Right'):
+    if (event.key == 'Right' or event.key == 'd'):
         app.isRunning = False
-    if (event.key == 'Left'):
+    if (event.key == 'Left' or event.key == 'a'):
         app.isRunning = False
 
 #taken from https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html
