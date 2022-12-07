@@ -1,4 +1,3 @@
-from characters import *
 from cmu_112_graphics import *
 import random
 
@@ -6,28 +5,20 @@ def appStarted(app):
     #ALL SPRITES FROM https://www.pngkey.com/detail/u2q8i1u2o0e6t4u2_imagenes-con-transparencia-para-que-la-puedan-descargar/ 
     spritestrip = app.loadImage('img/mainsprite.png')
     app.sprites = spritestrip
-    app.gameOver = False
-    app.win = False
-    app.hold = 157
-    app.cFloor = 157
-    app.gravity = True
-    app.currentX = 0
-    app.gap = False
-    app.fell = 0
+    app.gameOver, app.win, app.gravity, app.gap = False, False, True, False
+    app.hold, app.cFloor, app.currentX, app.fell = 160, 160, 0, 0
+
     #background
-    app.width = 1800
-    app.height = 200
-    app.tileSize = 17
+    app.width, app.height, app.tileSize = 1800, 200, 17
     app.terrain = []
     skyLoad = app.sprites.crop((800,520,840,570))
     app.sky = app.scaleImage(skyLoad, .5)
-    floorLoad = app.sprites.crop((235,130,275,180))
-    app.floor = app.scaleImage(floorLoad, .5)
     brickLoad = app.sprites.crop((110,25,150,75))
     app.brick = app.scaleImage(brickLoad, .5)
     powerLoad = app.sprites.crop((195,90,225,130))
     app.power = app.scaleImage(powerLoad, .55)
     app.back = app.loadImage('img/backgroundMADE.png')
+
     #MARIO APP ITEMS
     mario_load = spritestrip.crop((10, 895, 60, 940))
     app.standingMario = app.scaleImage(mario_load, .66)
@@ -36,12 +27,8 @@ def appStarted(app):
     starMario_load = spritestrip.crop((880, 1390, 920, 1470))
     app.starStandingMario = app.scaleImage(starMario_load, .5)
     #taken from https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html
-    app.runningRight = []
-    app.runningLeft = []
-    app.tallRunningRight = []
-    app.tallRunningLeft = []
-    app.starRunningRight = []
-    app.starRunningLeft = []
+    app.runningRight, app.runningLeft, app.tallRunningRight = [], [], []
+    app.tallRunningLeft, app.starRunningRight, app.starRunningLeft = [], [], []
     for i in range(3):
         sprite = spritestrip.crop((165+i*40, 895, 200+i*40, 940))
         spriteScale = app.scaleImage(sprite, .66)
@@ -64,18 +51,11 @@ def appStarted(app):
     app.tallJumpingMario = app.scaleImage(tJMLoad, .5)
     sJMLoad = spritestrip.crop((1108, 1394, 1168, 1457))
     app.starJumpingMario = app.scaleImage(sJMLoad, .5)
-    app.spriteCounter = 0
+    app.spriteCounter, app.scrollX, app.startTrack = 0, 0, -2000,
     app.currentMario = app.standingMario
-    app.scrollX = 0
-    app.startTrack = -2000
-    app.isStart = True
-    app.isJumping = False
-    app.isFalling = False
-    app.isRunning = False
-    app.isTall = False
-    app.isStar = False
-    app.marioLocation = [200,120]
-    app.marioBounds = [189,110,202,130]
+    app.isStart, app.isJumping, app.isFalling = True, False, False
+    app.isRunning, app.isTall, app.isStar = False, False, False
+    app.marioLocation, app.marioBounds = [200,120], [189,110,202,130]
     app.current = app.marioLocation[1]
     
     #POWER UP ITEMS
@@ -95,22 +75,19 @@ def appStarted(app):
     app.goombaLocations = []
 
     #HAMMER BRO APP ITEMS
-    app.hammerBrosRight = []
-    app.hammerBrosLeft = []
+    app.hammerBrosRight, app.hammerBrosLeft, app.hammerBrosLocation = [], [], []
     app.currentHammers = app.hammerBrosRight
     app.hammerMove = False
-    app.hammerX = 0
-    app.addX = 0
+    app.hammerX, app.addX = 0, 0
     for i in range(3):
         hammerBro_load = spritestrip.crop((750 + i*60,1160,800 + i*60,1215))
         hammerBro = app.scaleImage(hammerBro_load, .5)
         hammerBroTransposed = hammerBro.transpose(Image.FLIP_LEFT_RIGHT)
         app.hammerBrosRight.append(hammerBro)
         app.hammerBrosLeft.append(hammerBroTransposed)
-    app.hammerBrosLocation = []
 
     #HAMMER APP ITEMS
-    app.hammer = []
+    app.hammer, app.hammerLocation = [], []
     hammer1_load = spritestrip.crop((930,1190,959,1210))
     hammer1 = app.scaleImage(hammer1_load, .5)
     hammer2_load = spritestrip.crop((959,1181,969,1210))
@@ -123,47 +100,36 @@ def appStarted(app):
     app.hammer.append(hammer2)
     app.hammer.append(hammer3)
     app.hammer.append(hammer4)
-    app.spriteCounterH = 0
-    app.hammerLocation = []
-    app.count = 1
-    app.currentMarioX = 0
-    app.currentMarioY = 0
+    app.spriteCounterH, app.count = 0, 1
+    app.currentMarioX, app.currentMarioY = 0, 0
     app.currentHLocX, app.currentHLocY = 0,0
+
     #MAPLOCATIONS
-    app.barrierLocations = []
-    app.gapLocations = []
-    app.powerLocations = []
-    app.barriersDict = []
-    app.gapDict = []
-    app.powerList = []
+    app.barrierLocations, app.gapLocations, app.powerLocations = [], [], []
+    app.barriersList, app.gapList, app.powerList = [], [], []
 
     #COLLISION HELP
-    app.blockR = False
-    app.blockL = False
+    app.blockR, app.blockL = False, False
     loadTerrain(app)
     createGoombas(app)
     createHammerBros(app)
 
+#getting cell bounds for the map objects
 def getCellBounds(app):
     for i in range(len(app.barrierLocations)):
-        x = app.barriersDict
-        L = app.barrierLocations
+        x, L = app.barriersList, app.barrierLocations
         x.append([17*(L[i][1]), 17*L[i][0], 17*(L[i][1]+1), 17*(L[i][0]+1)])
     for i in range(len(app.gapLocations)):
-        x = app.gapDict
-        L = app.gapLocations
+        x, L = app.gapList, app.gapLocations
         x.append([17*(L[i][1]), 17*L[i][0], 17*(L[i][1]+1), 17*(L[i][0]+1)])
     for i in range(len(app.powerLocations)):
-        x = app.barriersDict
-        x2 = app.powerList
-        L = app.powerLocations
+        x, x2, L = app.barriersList, app.powerList, app.powerLocations
         x.append([17*(L[i][1]), 17*L[i][0], 17*(L[i][1]+1), 17*(L[i][0]+1)])
         x2.append([17*(L[i][1]), 17*L[i][0], 17*(L[i][1]+1), 17*(L[i][0]+1)])
 
 #generating terrain
 def loadTerrain(app):
-    board = []
-    backupBoard = []
+    board, backupBoard = [], []
     for x in range(int((app.height)/app.tileSize)+1):
         board.append([])
         backupBoard.append([])
@@ -174,7 +140,6 @@ def loadTerrain(app):
             else:
                 board[x].append('sky')
                 backupBoard[x].append('sky')
-     
     board = loadTerrainSolver(board, 9, 15)
     if board != None:
         app.terrain = board
@@ -189,10 +154,10 @@ def loadTerrain(app):
             if app.terrain[i][j] == 'skyDraw':
                 app.gapLocations.append((i, j))
     getCellBounds(app)
-
+#recursive function
 def loadTerrainSolver(board, curRow, curCol):
     cols = len(board[0])
-    if curCol == 90:
+    if curCol == 100:
         return board
     for i in range(cols-curCol):
         newCol = curCol + i
@@ -207,8 +172,7 @@ def loadTerrainSolver(board, curRow, curCol):
                 board[curRow-1][newCol] = 'sky'
         if isLegalAir(board, curRow, newCol):
             if random.randint(0,4) == 2:
-                x = random.randint(1,3)
-                y = random.randint(1,3)
+                x, y = random.randint(1,3), random.randint(1,3)
                 board[curRow-3][newCol-1] = 'brick'
                 board[curRow-3][newCol-2] = 'brick'
                 board[curRow-3][newCol-3] = 'brick'
@@ -227,20 +191,21 @@ def loadTerrainSolver(board, curRow, curCol):
                 if result != None:
                     return result
     return None
-
+#checking move legality
 def isLegal(board, curRow, curCol):
     if board[curRow][curCol-1] == 'brick' or board[curRow][curCol-2] == 'brick':
         return False
     return True
 
 def isLegalAir(board, curRow, newCol):
-    if board[curRow][newCol] == 'sky' and board[curRow][newCol-1] == 'sky' and board[curRow][newCol-2] == 'sky' and board[curRow][newCol-3] == 'sky':
+    if board[curRow][newCol] == 'sky' and board[curRow][newCol-1] == 'sky' and board[
+        curRow][newCol-2] == 'sky' and board[curRow][newCol-3] == 'sky':
         return True
     return False
     
 
 #creating enemies
-#goombas
+#hammer bros
 def createHammerBros(app):
     count = 0
     for i in range(len(app.terrain[0])):
@@ -255,7 +220,7 @@ def createHammerBros(app):
                 app.addX = -17
             app.hammerBrosLocation.append(i*17+8.5+app.addX)
             count = 0
-            
+#goombas
 def createGoombas(app):
     count = 0
     for i in range(len(app.terrain[0])):
@@ -267,18 +232,15 @@ def createGoombas(app):
         else:
             count = 0
 
-
+#checking collision with barriers
 def barrierCollision(app):
-    for i in range(len(app.barriersDict)):
-            inRange = False
-            inXRange = False
-            inRangeL = False
-            inXRangeL = False
-            for j in range(app.barriersDict[i][1], app.barriersDict[i][3]):
+    for i in range(len(app.barriersList)):
+            inRange, inXRange, inRangeL, inXRangeL = False, False, False, False
+            for j in range(app.barriersList[i][1], app.barriersList[i][3]):
                 if int(app.marioBounds[3]) - 10 == j:
                     inRange = True
             if inRange==True:
-                for k in range(app.barriersDict[i][0]-app.scrollX, app.barriersDict[i][2]-app.scrollX):
+                for k in range(app.barriersList[i][0]-app.scrollX, app.barriersList[i][2]-app.scrollX):
                     if app.marioBounds[2] + 5 == k:
                         inXRange = True
             if inRange == True and inXRange == True:
@@ -287,11 +249,11 @@ def barrierCollision(app):
                 app.blockR = False
             if app.currentMario == app.runningLeft or app.currentMario == app.tallStandingMario:
                     app.blockR = False
-            for j in range(app.barriersDict[i][1], app.barriersDict[i][3]):
+            for j in range(app.barriersList[i][1], app.barriersList[i][3]):
                 if int(app.marioBounds[3]) - 10 == j:
                     inRangeL = True
             if inRangeL==True:
-                for k in range(app.barriersDict[i][0]-app.scrollX, app.barriersDict[i][2]-app.scrollX):
+                for k in range(app.barriersList[i][0]-app.scrollX, app.barriersList[i][2]-app.scrollX):
                     if app.marioBounds[0] - 5 == k:
                         inXRangeL = True
             if inRangeL == True and inXRangeL == True:
@@ -300,110 +262,105 @@ def barrierCollision(app):
                 app.blockL = False
             if app.currentMario == app.runningRight or app.currentMario == app.tallRunningRight:
                 app.blockL = False
-    
+#standing on top and hitting head on bricks and power blocks
 def standCollision(app):
-    for i in range(len(app.barriersDict)):
-            inRange = False
-            inXRange = False
-            for j in range(app.barriersDict[i][1]-17, app.barriersDict[i][3]-17):
+    for i in range(len(app.barriersList)):
+            inRange, inXRange = False, False
+            for j in range(app.barriersList[i][1]-17, app.barriersList[i][3]-17):
                 if int(app.marioBounds[3]) - 10 == j:
                     inRange = True
             if inRange==True:
-                for k in range(app.barriersDict[i][0]-app.scrollX, app.barriersDict[i][2]-app.scrollX):
+                for k in range(app.barriersList[i][0]-app.scrollX, app.barriersList[i][2]-app.scrollX):
                     if k in range(app.marioBounds[0], app.marioBounds[2]):
                         inXRange = True    
             if inRange == True and inXRange == True and app.marioBounds[3] < 140:
-                app.isJumping = False
-                app.isFalling = False
-                app.cFloor = app.marioLocation[1]
-                app.gravity = True
+                app.isJumping, app.isFalling, app.gravity = False, False, True
+                app.cFloor = app.barriersList[i][1] - 10
                 app.currentX = app.scrollX
             if app.scrollX > app.currentX+8 or app.scrollX < app.currentX-8:
                 app.cFloor = 160
-                app.isFalling = True
-                app.gravity = True
+                app.isFalling, app.gravity = True, True
                 app.currentX = app.scrollX
-    for i in range(len(app.barriersDict)):
-            inRange = False
-            inXRange = False
-            for j in range(app.barriersDict[i][1]+17, app.barriersDict[i][3]+17):
+    for i in range(len(app.barriersList)):
+            inRange, inXRange = False, False
+            for j in range(app.barriersList[i][1]+17, app.barriersList[i][3]+17):
                 if int(app.marioBounds[3]) - 10 == j:
                     inRange = True
             if inRange==True:
-                for k in range(app.barriersDict[i][0]-app.scrollX, app.barriersDict[i][2]-app.scrollX):
+                for k in range(app.barriersList[i][0]-app.scrollX, app.barriersList[i][2]-app.scrollX):
                     if k in range(app.marioBounds[0], app.marioBounds[2]):
                         inXRange = True    
             if inRange == True and inXRange == True and app.isJumping == True:
-                app.isJumping = False
-                app.isFalling = True
-                if app.barriersDict[i] in app.powerList:
-                    app.powerList.remove(app.barriersDict[i])
+                app.isJumping, app.isFalling = False, True
+                if app.barriersList[i] in app.powerList:
+                    app.powerList.remove(app.barriersList[i])
                     choose = random.randint(0, 2)
                     if choose == 0 or choose == 1:
-                        app.mushroomLocations.append([app.barriersDict[i][0], app.barriersDict[i][1]-17, app.barriersDict[i][2], app.barriersDict[i][1]])
+                        app.mushroomLocations.append([app.barriersList[i][0], app.barriersList[i][1]-17
+                        , app.barriersList[i][2], app.barriersList[i][1]])
                     if choose == 2:
-                        app.starLocations.append([app.barriersDict[i][0], app.barriersDict[i][1]-17, app.barriersDict[i][2], app.barriersDict[i][1]])
-                
+                        app.starLocations.append([app.barriersList[i][0], app.barriersList[i][1]-17
+                        , app.barriersList[i][2], app.barriersList[i][1]])
+#checking if mario/goomba fall into gaps
 def gapCollision(app):
     #MARIO
-    for i in range(len(app.gapDict)):
-            inRange = False
-            inXRange = False
-            for j in range(app.gapDict[i][1]-17, app.gapDict[i][3]-17):
+    for i in range(len(app.gapList)):
+            inRange, inXRange = False, False
+            for j in range(app.gapList[i][1]-17, app.gapList[i][3]-17):
                 if int(app.marioBounds[3]) - 10 == j:
                     inRange = True
             if inRange==True:
-                for k in range(app.gapDict[i][0]-app.scrollX, app.gapDict[i][2]-app.scrollX):
+                for k in range(app.gapList[i][0]-app.scrollX, app.gapList[i][2]-app.scrollX):
                     if app.marioBounds[2] - 10 == k:
                         inXRange = True    
             if inRange == True and inXRange == True:
-                app.isFalling = False
-                app.gap = True
+                app.isFalling, app.gap = False, True
                 app.fell = 2000
     #GOOMBA
-    for i in range(len(app.gapDict)):
-            inRange = False
-            inXRange = False
-            for j in range(app.gapDict[i][0]-app.scrollX, app.gapDict[i][2]-app.scrollX):
+    for i in range(len(app.gapList)):
+            inRange, inXRange = False, False
+            for j in range(app.gapList[i][0]-app.scrollX, app.gapList[i][2]-app.scrollX):
                 for k in range(len(app.goombaLocations)):
                     if app.goombaLocations[k] - app.scrollX- app.goombaX == j:
                         app.goombaLocations[k] = -200
-    
+#mario colliding with mushrooms
 def mushroomCollision(app):
     for i in range(len(app.mushroomLocations)):
-            inRange = False
-            inXRange = False
+            inRange, inXRange = False, False
             for j in range(app.mushroomLocations[i][1], app.mushroomLocations[i][3]):
-                if int(app.marioBounds[3]) - 10 == j:
-                    inRange = True
+                for k in range(int(app.marioBounds[1]),int(app.marioBounds[3])):
+                    if k == j:
+                        inRange = True
             if inRange==True:
                 for k in range(app.mushroomLocations[i][0]-app.scrollX, app.mushroomLocations[i][2]-app.scrollX):
-                    if app.marioBounds[2] - 10 == k:
-                        inXRange = True
+                    for j in range(app.marioBounds[0], app.marioBounds[2]):
+                        if j == k:
+                            inXRange = True
             if inRange == True and inXRange == True:
-                app.isTall = True
-                app.isStar = False
+                app.isTall, app.isStar = True, False
                 app.currentMario = app.tallStandingMario
                 app.mushroomLocations.pop(i)
                 break
+#mario colliding with stars
 def starCollision(app):
     for i in range(len(app.starLocations)):
-            inRange = False
-            inXRange = False
+            inRange, inXRange = False, False
             for j in range(app.starLocations[i][1], app.starLocations[i][3]):
-                if int(app.marioBounds[3]) - 10 == j:
-                    inRange = True
+                for k in range(int(app.marioBounds[1]),int(app.marioBounds[3])):
+                    if k == j:
+                        inRange = True
             if inRange==True:
                 for k in range(app.starLocations[i][0]-app.scrollX, app.starLocations[i][2]-app.scrollX):
-                    if app.marioBounds[2] - 10 == k:
-                        inXRange = True
+                    for j in range(app.marioBounds[0], app.marioBounds[2]):
+                        if k == j:
+                            inXRange = True
             if inRange == True and inXRange == True:
-                app.isTall = False
-                app.isStar = True
+                app.isTall, app.isStar = False, True
                 app.currentMario = app.starStandingMario
                 app.starLocations.pop(i)
                 app.startTimer = app.scrollX
                 break
+#hammers hitting mario
 def hammerCollision(app):
     if app.hammerLocation != []:
         if int(app.hammerLocation[0][0]) in range(app.marioBounds[0]-2, app.marioBounds[2]+2):
@@ -412,13 +369,52 @@ def hammerCollision(app):
                     pass
                 elif app.isTall == True:
                     app.isTall = False
+                    app.currentMario = app.standingMario
                     app.hammerLocation = []
                     app.count = 1
                 else:
                     app.gameOver = True
             app.hammerLocation = []
             app.count = 1
-        
+
+#hammerbros hitting mario
+def hammerBroCollision(app):
+    for i in range(len(app.hammerBrosLocation)):
+        if app.isStar == True:
+            locationNow = app.hammerBrosLocation[i]-app.scrollX+app.hammerX
+            if locationNow > app.marioBounds[0] and locationNow < app.marioBounds[2] and app.marioBounds[3] < 119 and app.marioBounds[3] > 90: 
+                app.hammerBrosLocation[i] = -200
+        elif app.isTall == False:
+            locationNow = app.hammerBrosLocation[i]-app.scrollX+app.hammerX
+            if locationNow > app.marioBounds[0]-5 and locationNow < app.marioBounds[2]+5 and app.marioBounds[3] < 119 and app.marioBounds[3] > 80: 
+                app.gameOver = True
+        elif app.isTall == True:
+            locationNow = app.hammerBrosLocation[i]-app.scrollX+app.hammerX
+            if locationNow > app.marioBounds[0]-5 and locationNow < app.marioBounds[2]+5 and app.marioBounds[3] < 119 and app.marioBounds[3] > 90: 
+                app.gameOver = True
+
+#goombas hitting mario
+def goombaCollision(app):
+    for i in range(len(app.goombaLocations)):
+        if app.isStar == True:
+            locationNow = app.goombaLocations[i]-app.scrollX-app.goombaX
+            if locationNow > app.marioBounds[0] and locationNow < app.marioBounds[2] and app.marioBounds[1] > 115: 
+                app.goombaLocations[i] = -200
+        elif app.isTall == False:
+            locationNow = app.goombaLocations[i]-app.scrollX-app.goombaX
+            if locationNow > app.marioBounds[0] and locationNow < app.marioBounds[2] and app.marioBounds[3] < 153 and app.marioBounds[3] > 145 and app.isFalling == True:
+                app.goombaLocations[i] = -200
+            if locationNow > app.marioBounds[0] and locationNow < app.marioBounds[2] and app.marioBounds[3] < 170 and app.marioBounds[3] > 153: 
+                app.gameOver = True
+        elif app.isTall == True:
+            locationNow = app.goombaLocations[i]-app.scrollX-app.goombaX
+            if locationNow > app.marioBounds[0] and locationNow < app.marioBounds[2] and app.marioBounds[3] < 153 and app.marioBounds[3] > 145 and app.isFalling == True:
+                app.goombaLocations[i] = -200
+            if locationNow > app.marioBounds[0] and locationNow < app.marioBounds[2] and app.marioBounds[3] < 170 and app.marioBounds[3] > 153: 
+                app.isTall = False
+                app.currentMario = app.standingMario
+                app.goombaLocations[i] = -200
+
 def keyPressed(app, event):
     if app.win == False:
         if (event.key == 'Left'):
@@ -441,17 +437,13 @@ def keyPressed(app, event):
             if app.blockR == False:
                 app.scrollX += 2
         if (event.key == 'Up' and app.isJumping == False and app.isFalling == False):
-            app.isJumping = True
-            app.isFalling = False
-            app.gravity = True
+            app.isJumping, app.isFalling, app.gravity = True, False, True
     if (event.key == 'p'):
-        app.isTall = False
-        app.isStar = True
+        app.isTall, app.isStar = False, True
         app.currentMario = app.starStandingMario
         app.startTimer = app.scrollX
     if (event.key == 'o'):
-        app.isTall = True
-        app.isStar = False
+        app.isTall, app.isStar = True, False
         app.currentMario = app.tallStandingMario
     if (event.key == 'r'):
         runApp(width=600, height=200)
@@ -490,7 +482,8 @@ def timerFired(app):
 
     #hammer movement
     for i in range(len(app.hammerBrosLocation)):
-        if app.count == 1 and (app.marioLocation[0]-(app.hammerBrosLocation[i]-app.scrollX+app.hammerX)) < -150 and ((app.marioLocation[0]-(app.hammerBrosLocation[i]-app.scrollX+app.hammerX)) > -200):
+        if app.count == 1 and (app.marioLocation[0]-(app.hammerBrosLocation[i]-app.scrollX+app.hammerX)) < -100 and (
+            (app.marioLocation[0]-(app.hammerBrosLocation[i]-app.scrollX+app.hammerX)) > -200):
             app.hammerLocation.append([app.hammerBrosLocation[i]-app.scrollX+app.hammerX, 90])
             app.count = 0
             app.currentMarioX, app.currentMarioY = app.marioLocation[0], app.marioLocation[1]
@@ -503,8 +496,6 @@ def timerFired(app):
     #initial drop
     if app.isStart == True:
         app.marioLocation[1] += 4.5
-        app.marioBounds[1] = app.marioLocation[1]-10
-        app.marioBounds[3] = app.marioLocation[1]+10
     if app.marioLocation[1] >= app.cFloor:
         app.isStart = False
     if app.marioLocation[1] == 157:
@@ -524,16 +515,10 @@ def timerFired(app):
             app.currentMario = app.starJumpingMario
         if app.marioLocation[1] < app.cFloor-27:
             app.marioLocation[1] -= 10
-            app.marioBounds[1] = app.marioLocation[1]-10
-            app.marioBounds[3] = app.marioLocation[1]+10
         elif app.marioLocation[1] < app.cFloor-12:
             app.marioLocation[1] -= 13
-            app.marioBounds[1] = app.marioLocation[1]-10
-            app.marioBounds[3] = app.marioLocation[1]+10
         elif app.marioLocation[1] < app.cFloor+7:
             app.marioLocation[1] -= 16
-            app.marioBounds[1] = app.marioLocation[1]-10
-            app.marioBounds[3] = app.marioLocation[1]+10
         if app.marioLocation[1] <= app.cFloor-77:
             app.isJumping = False
             app.isFalling = True
@@ -541,8 +526,6 @@ def timerFired(app):
     if app.gravity == True:
         if app.marioLocation[1] < app.cFloor:
             app.marioLocation[1] += .5
-            app.marioBounds[1] = app.marioLocation[1]-10
-            app.marioBounds[3] = app.marioLocation[1]+10
     #gap
     if app.gap == True:
         for i in range(100):
@@ -569,23 +552,19 @@ def timerFired(app):
                 app.currentMario = app.starJumpingMario
         if app.marioLocation[1] <= app.cFloor-27:
             app.marioLocation[1] += 6
-            app.marioBounds[1] = app.marioLocation[1]-10
-            app.marioBounds[3] = app.marioLocation[1]+10
         elif app.marioLocation[1] <= app.cFloor-22:
             app.marioLocation[1] += 8
-            app.marioBounds[1] = app.marioLocation[1]-10
-            app.marioBounds[3] = app.marioLocation[1]+10
         elif app.marioLocation[1] < app.cFloor-10:
             app.marioLocation[1] += 9
-            app.marioBounds[1] = app.marioLocation[1]-10
-            app.marioBounds[3] = app.marioLocation[1]+10
         elif app.marioLocation[1] < app.cFloor-2:
             app.marioLocation[1] += 4
-            app.marioBounds[1] = app.marioLocation[1]-10
-            app.marioBounds[3] = app.marioLocation[1]+10
             if app.marioLocation[1] >= app.cFloor-.5:
                 app.isFalling = False
-        
+    #setting marios location
+    app.marioBounds[1] = app.marioLocation[1]-10
+    app.marioBounds[3] = app.marioLocation[1]+10    
+
+    #setting marios state
     if app.isRunning != True and app.isFalling != True and app.isJumping != True and app.isTall != True:
         app.currentMario = app.standingMario
 
@@ -595,46 +574,11 @@ def timerFired(app):
     if app.isStar == True and app.isRunning != True and app.isFalling != True and app.isJumping != True:
         app.currentMario = app.starStandingMario
     
-    
-    #collisions
-        #goomba collision
-    for i in range(len(app.goombaLocations)):
-        if app.isStar == True:
-            locationNow = app.goombaLocations[i]-app.scrollX-app.goombaX
-            if locationNow > app.marioBounds[0] and locationNow < app.marioBounds[2] and app.marioBounds[1] > 115: 
-                app.goombaLocations[i] = -200
-        elif app.isTall == False:
-            locationNow = app.goombaLocations[i]-app.scrollX-app.goombaX
-            if locationNow > app.marioBounds[0] and locationNow < app.marioBounds[2] and app.marioBounds[3] < 153 and app.marioBounds[3] > 145 and app.isFalling == True:
-                app.goombaLocations[i] = -200
-            if locationNow > app.marioBounds[0] and locationNow < app.marioBounds[2] and app.marioBounds[3] < 170 and app.marioBounds[3] > 153: 
-                app.gameOver = True
-        elif app.isTall == True:
-            locationNow = app.goombaLocations[i]-app.scrollX-app.goombaX
-            if locationNow > app.marioBounds[0] and locationNow < app.marioBounds[2] and app.marioBounds[3] < 153 and app.marioBounds[3] > 145 and app.isFalling == True:
-                app.goombaLocations[i] = -200
-            if locationNow > app.marioBounds[0] and locationNow < app.marioBounds[2] and app.marioBounds[3] < 170 and app.marioBounds[3] > 153: 
-                app.isTall = False
-                app.currentMario = app.standingMario
-                app.goombaLocations[i] = -200
-    #hammerbro collision
-    for i in range(len(app.hammerBrosLocation)):
-        if app.isStar == True:
-            locationNow = app.hammerBrosLocation[i]-app.scrollX+app.hammerX
-            if locationNow > app.marioBounds[0] and locationNow < app.marioBounds[2] and app.marioBounds[3] < 119 and app.marioBounds[3] > 90: 
-                app.hammerBrosLocation[i] = -200
-        elif app.isTall == False:
-            locationNow = app.hammerBrosLocation[i]-app.scrollX+app.hammerX
-            if locationNow > app.marioBounds[0]-5 and locationNow < app.marioBounds[2]+5 and app.marioBounds[3] < 119 and app.marioBounds[3] > 80: 
-                app.gameOver = True
-        elif app.isTall == True:
-            locationNow = app.hammerBrosLocation[i]-app.scrollX+app.hammerX
-            if locationNow > app.marioBounds[0]-5 and locationNow < app.marioBounds[2]+5 and app.marioBounds[3] < 119 and app.marioBounds[3] > 90: 
-                app.gameOver = True
-        
-        #brick collision
+    #running all function
     if app.isStar == False:
         barrierCollision(app)
+    hammerBroCollision(app)
+    goombaCollision(app)
     standCollision(app)
     mushroomCollision(app)
     starCollision(app)
@@ -644,20 +588,20 @@ def timerFired(app):
     #ending star mode
     if app.scrollX - app.startTimer > 400:
         app.startTimer = 3000
-        app.isStar = False
-        app.isTall = True
+        app.isStar, app.isTall = False, True
         app.currentMario = app.tallStandingMario
 
     #win condition
     if app.marioBounds[2] + app.scrollX > 1380:
         app.win = True
     
-    
+#drawing image background
 def drawBack(app, canvas):
     canvas.create_image(300-app.scrollX, 100, image=ImageTk.PhotoImage(app.back))
     canvas.create_image(900-app.scrollX, 100, image=ImageTk.PhotoImage(app.back))
     canvas.create_image(1500-app.scrollX, 100, image=ImageTk.PhotoImage(app.back))
 
+#drawing objects in background
 def drawBackground(app, canvas):
     for i in range(len(app.terrain)):
         for j in range(0+int(app.scrollX/17), len(app.terrain[i])-70+int(app.scrollX/17)):
@@ -667,6 +611,8 @@ def drawBackground(app, canvas):
                 canvas.create_image(10+app.tileSize*j-app.scrollX, 10+app.tileSize*i, image=ImageTk.PhotoImage(app.power))
             if app.terrain[i][j] == 'skyDraw':
                 canvas.create_image(10+app.tileSize*j-app.scrollX, 10+app.tileSize*i, image=ImageTk.PhotoImage(app.sky))
+
+#drawing mario
 def drawMario(app, canvas):
     if app.isStar == False:
         if app.isTall == False:
@@ -697,30 +643,36 @@ def drawMario(app, canvas):
         else:
             canvas.create_image(200,app.marioLocation[1],image=ImageTk.PhotoImage(app.currentMario))    
 
+#drawing powerups
 def drawPowerups(app, canvas):
     for i in range(len(app.mushroomLocations)):
         canvas.create_image(app.mushroomLocations[i][0]-app.scrollX+8.5, app.mushroomLocations[i][1]+8.5, image=ImageTk.PhotoImage(app.mushroom))
     for i in range(len(app.starLocations)):
         canvas.create_image(app.starLocations[i][0]-app.scrollX+8.5, app.starLocations[i][1]+8.5, image=ImageTk.PhotoImage(app.star))
 
+#drawing enemies
 def drawEnemies(app, canvas):
     for i in range(len(app.goombaLocations)):
-        canvas.create_image(app.goombaLocations[i]-app.goombaX-app.scrollX,160,image=ImageTk.PhotoImage(app.goomba))
+        if app.goombaLocations[i] in range(0+app.scrollX, 600+app.scrollX):
+            canvas.create_image(app.goombaLocations[i]-app.goombaX-app.scrollX,160,image=ImageTk.PhotoImage(app.goomba))
     for i in range(len(app.hammerBrosLocation)):
-        sprite = app.currentHammers[app.spriteCounter]
-        canvas.create_image(app.hammerBrosLocation[i]-app.scrollX+app.hammerX,90, image=ImageTk.PhotoImage(sprite))
+        if int(app.hammerBrosLocation[i]) in range(0+app.scrollX, 600+app.scrollX):
+            sprite = app.currentHammers[app.spriteCounter]
+            canvas.create_image(app.hammerBrosLocation[i]-app.scrollX+app.hammerX,90, image=ImageTk.PhotoImage(sprite))
         for j in range(len(app.hammerLocation)):
             spriteH = app.hammer[app.spriteCounterH]
             canvas.create_image(app.hammerLocation[0][0], app.hammerLocation[0][1], image=ImageTk.PhotoImage(spriteH))
     
-
+#drawing game over screen
 def drawGameOver(app, canvas):
     canvas.create_rectangle(0,0,600,200, fill='Black')
     canvas.create_text(300,100,text='Game Over', fill = 'White')
 
+#drawing win screen
 def drawWin(app, canvas):
     canvas.create_rectangle(0,0,600,200, fill='White')
     canvas.create_text(300,100,text='You win!', fill = 'Black')
+
 
 def redrawAll(app, canvas):
     drawBack(app, canvas)
